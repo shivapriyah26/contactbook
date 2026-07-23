@@ -1,4 +1,4 @@
-name: CI - Build Check
+name: CI - Lint, Test, Build
 
 on:
   push:
@@ -8,10 +8,46 @@ on:
   workflow_dispatch:
 
 jobs:
-  docker-build-check:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install lint tools
+        run: pip install flake8 black
+      - name: Run flake8
+        run: flake8 backend/app --max-line-length=100
+      - name: Check formatting with black
+        run: black --check backend/app
 
+  test:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt pytest httpx
+      - name: Run tests
+        working-directory: backend
+        run: pytest tests/ -v --junitxml=test-results.xml
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: backend/test-results.xml
+
+  docker-build-check:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
       - name: Verify Dockerfile builds
         run: docker build -t contactbook-backend-test ./backend
