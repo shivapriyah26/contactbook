@@ -1,0 +1,17 @@
+name: CI - Build Check
+
+on:
+  push:
+    branches: [feature/**, hotfix/**, develop, main]
+  pull_request:
+    branches: [develop, main]
+  workflow_dispatch:
+
+jobs:
+  docker-build-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify Dockerfile builds
+        run: docker build -t contactbook-backend-test ./backend
