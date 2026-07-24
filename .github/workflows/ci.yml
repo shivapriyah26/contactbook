@@ -161,7 +161,7 @@ jobs:
 
       - name: Health check
         run: |
-          URL="http://${{ steps.get-ip.outputs.public_ip }}:9999/health"
+          URL="http://${{ steps.get-ip.outputs.public_ip }}:8000/health"
           echo "Checking $URL"
           for i in 1 2 3 4 5; do
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$URL" || echo "000")
@@ -267,7 +267,7 @@ jobs:
       - name: Health check
         id: healthcheck
         run: |
-          URL="http://${{ steps.get-ip.outputs.public_ip }}:9999/health"
+          URL="http://${{ steps.get-ip.outputs.public_ip }}:8000/health"
           echo "Checking $URL"
           for i in 1 2 3 4 5; do
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$URL" || echo "000")
