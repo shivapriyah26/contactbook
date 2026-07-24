@@ -98,10 +98,14 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
       - name: Register new task definition revision with the new image
         id: register-task-def
         run: |
-          IMAGE="${{ needs.build-and-push.outputs.registry }}/contactbook:${{ needs.build-and-push.outputs.image_tag }}"
+          IMAGE="${{ steps.ecr-login.outputs.registry }}/contactbook:${{ needs.build-and-push.outputs.image_tag }}"
           echo "Deploying image: $IMAGE"
 
           aws ecs describe-task-definition \
